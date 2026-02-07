@@ -127,9 +127,3 @@ See **HOW_TO_RUN_IN_VSCODE.md** for detailed steps.
 | JWT_SECRET    | Secret for JWT signing         |
 | GEMINI_API_KEY| Google Gemini API key          |
 
-## Notes
-
-- Without `GEMINI_API_KEY`, the app uses fallback questions.
-- **No MongoDB needed for demo:** Uses in-memory DB when `MONGODB_URI` is not set. Add MongoDB Atlas URI in `server/.env` for persistent data.
-- CORS is enabled for `localhost:5173`.
-- Frontend proxies `/api` to backend in development.
