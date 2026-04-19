@@ -25,7 +25,9 @@ const connectDB = async () => {
 
     if (forceLocal || isPlaceholderUri(uri)) {
       console.log('Using local in-memory MongoDB (no Atlas login needed). Data resets when server stops.');
-      mongod = await MongoMemoryServer.create();
+      mongod = await MongoMemoryServer.create({
+        binary: { version: '7.0.3' }
+      });
       uri = mongod.getUri();
     }
 
