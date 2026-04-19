@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Briefcase, Zap, Loader2, ChevronRight } from 'lucide-react';
+import { Plus, Briefcase, Zap, Loader2, ChevronRight, Trophy, MessageCircle, Share2, Mic } from 'lucide-react';
 import api from '../services/api';
 
 export default function Dashboard() {
@@ -11,11 +11,41 @@ export default function Dashboard() {
   const [experience, setExperience] = useState('');
   const [error, setError] = useState('');
   const [showForm, setShowForm] = useState(false);
+  const [progress, setProgress] = useState({ sessionsCompleted: 0, questionsPracticed: 0 });
+  const [progressLoading, setProgressLoading] = useState(true);
 
   const experienceLevels = ['Beginner', 'Intermediate', 'Advanced', 'Expert'];
 
+  const quickLinks = [
+    {
+      to: '/leaderboard',
+      title: 'Leaderboard',
+      description: 'See top performers and rankings',
+      icon: Trophy,
+    },
+    {
+      to: '/discussions',
+      title: 'Discussions',
+      description: 'Ask questions and learn with peers',
+      icon: MessageCircle,
+    },
+    {
+      to: '/share',
+      title: 'Share',
+      description: 'Generate and manage shareable links',
+      icon: Share2,
+    },
+    {
+      to: '/mock-interview',
+      title: 'Mock Interview',
+      description: 'Practice live interview flow',
+      icon: Mic,
+    },
+  ];
+
   useEffect(() => {
     fetchSessions();
+    fetchProgress();
   }, []);
 
   const fetchSessions = async () => {
@@ -26,6 +56,17 @@ export default function Dashboard() {
       setError('Failed to load sessions');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchProgress = async () => {
+    try {
+      const { data } = await api.get('/progress/me');
+      setProgress(data);
+    } catch (err) {
+      // ignore for now
+    } finally {
+      setProgressLoading(false);
     }
   };
 
@@ -55,6 +96,47 @@ export default function Dashboard() {
       <div>
         <h1 className="text-3xl font-bold text-slate-800 dark:text-white">Dashboard</h1>
         <p className="mt-2 text-slate-600 dark:text-slate-400">Create and manage your interview preparation sessions</p>
+      </div>
+
+      <div>
+        <h2 className="text-xl font-semibold text-slate-800 dark:text-white mb-4">Quick Navigation</h2>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {quickLinks.map(({ to, title, description, icon: Icon }) => (
+            <Link
+              key={to}
+              to={to}
+              className="glass-card p-5 hover:shadow-lg transition-all duration-200 group"
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center shrink-0">
+                  <Icon className="w-6 h-6 text-primary-600 dark:text-primary-400" />
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center justify-between gap-3">
+                    <h3 className="font-semibold text-slate-800 dark:text-white truncate">{title}</h3>
+                    <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-primary-600 group-hover:translate-x-0.5 transition-all shrink-0" />
+                  </div>
+                  <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{description}</p>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="glass-card p-4">
+          <p className="text-sm text-slate-500 dark:text-slate-400 mb-1">Sessions completed</p>
+          <p className="text-2xl font-bold text-slate-800 dark:text-white">
+            {progressLoading ? '...' : progress.sessionsCompleted}
+          </p>
+        </div>
+        <div className="glass-card p-4">
+          <p className="text-sm text-slate-500 dark:text-slate-400 mb-1">Questions practiced</p>
+          <p className="text-2xl font-bold text-slate-800 dark:text-white">
+            {progressLoading ? '...' : progress.questionsPracticed}
+          </p>
+        </div>
       </div>
 
       <div className="glass-card p-6">

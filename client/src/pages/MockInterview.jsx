@@ -9,6 +9,11 @@ export default function MockInterview() {
   const [showAnswer, setShowAnswer] = useState(false);
   const [loading, setLoading] = useState(true);
   const [started, setStarted] = useState(false);
+  const [mockId, setMockId] = useState(null);
+  const [myAnswer, setMyAnswer] = useState('');
+  const [submittingAnswer, setSubmittingAnswer] = useState(false);
+  const [completing, setCompleting] = useState(false);
+  const [result, setResult] = useState(null);
 
   useEffect(() => {
     api.get('/interviews').then(({ data }) => setSessions(data)).catch(() => setSessions([])).finally(() => setLoading(false));
@@ -17,17 +22,26 @@ export default function MockInterview() {
   const questions = selectedSession?.generatedQuestions || [];
   const currentQ = questions[currentIndex];
 
-  const handleStart = (session) => {
-    setSelectedSession(session);
-    setCurrentIndex(0);
-    setShowAnswer(false);
-    setStarted(true);
+  const handleStart = async (session) => {
+    try {
+      const { data } = await api.post('/mock/start', { sessionId: session._id });
+      setMockId(data._id);
+      setSelectedSession(session);
+      setCurrentIndex(0);
+      setShowAnswer(false);
+      setMyAnswer('');
+      setResult(null);
+      setStarted(true);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleNext = () => {
     if (currentIndex < questions.length - 1) {
       setCurrentIndex((i) => i + 1);
       setShowAnswer(false);
+      setMyAnswer('');
     }
   };
 
@@ -35,12 +49,45 @@ export default function MockInterview() {
     if (currentIndex > 0) {
       setCurrentIndex((i) => i - 1);
       setShowAnswer(false);
+      setMyAnswer('');
     }
   };
 
-  const handleEnd = () => {
-    setSelectedSession(null);
-    setStarted(false);
+  const submitAnswer = async () => {
+    if (!mockId || !myAnswer.trim()) return;
+    setSubmittingAnswer(true);
+    try {
+      await api.post('/mock/response', {
+        mockId,
+        questionIndex: currentIndex,
+        userResponse: myAnswer.trim(),
+      });
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSubmittingAnswer(false);
+    }
+  };
+
+  const handleEnd = async () => {
+    if (!mockId) {
+      setSelectedSession(null);
+      setStarted(false);
+      return;
+    }
+    setCompleting(true);
+    try {
+      if (myAnswer.trim()) {
+        await submitAnswer();
+      }
+      const { data } = await api.post('/mock/complete', { mockId });
+      setResult(data);
+      setMockId(null);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setCompleting(false);
+    }
   };
 
   if (!started) {
@@ -81,14 +128,36 @@ export default function MockInterview() {
     );
   }
 
+  if (result) {
+    return (
+      <div className="space-y-8">
+        <div className="glass-card p-8">
+          <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">Mock Interview Result</h2>
+          <p className="text-slate-600 dark:text-slate-400">Final Score: <span className="font-semibold">{result.finalScore}</span></p>
+          <p className="mt-3 text-slate-700 dark:text-slate-300">{result.summary}</p>
+          <button
+            onClick={() => {
+              setSelectedSession(null);
+              setStarted(false);
+              setResult(null);
+            }}
+            className="btn-primary mt-6"
+          >
+            Back to Session Selection
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-slate-800 dark:text-white">
           {selectedSession.role} • Question {currentIndex + 1} of {questions.length}
         </h1>
-        <button onClick={handleEnd} className="btn-secondary text-sm">
-          End Practice
+        <button onClick={handleEnd} disabled={completing} className="btn-secondary text-sm disabled:opacity-60">
+          {completing ? 'Completing...' : 'End Practice'}
         </button>
       </div>
 
@@ -111,6 +180,23 @@ export default function MockInterview() {
               <p className="text-slate-700 dark:text-slate-300 whitespace-pre-wrap">{currentQ?.answer}</p>
             </div>
           )}
+
+          <div className="mt-6">
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">Your response</p>
+            <textarea
+              value={myAnswer}
+              onChange={(e) => setMyAnswer(e.target.value)}
+              className="input-field min-h-[100px] resize-y"
+              placeholder="Type your interview answer here..."
+            />
+            <button
+              onClick={submitAnswer}
+              disabled={!myAnswer.trim() || submittingAnswer}
+              className="btn-secondary mt-2 text-sm disabled:opacity-60"
+            >
+              {submittingAnswer ? 'Saving...' : 'Save Response'}
+            </button>
+          </div>
         </div>
 
         <div className="flex items-center justify-between mt-8 pt-6 border-t border-slate-200 dark:border-slate-700">

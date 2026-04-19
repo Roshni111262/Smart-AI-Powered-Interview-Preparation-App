@@ -20,6 +20,31 @@ const userSchema = new mongoose.Schema({
     minlength: 6,
     select: false,
   },
+  role: {
+    type: String,
+    enum: ['user', 'admin'],
+    default: 'user',
+  },
+  isBlocked: {
+    type: Boolean,
+    default: false,
+  },
+  subscription: {
+    plan: {
+      type: String,
+      enum: ['free', 'premium'],
+      default: 'free',
+    },
+    status: {
+      type: String,
+      enum: ['inactive', 'active', 'cancelled'],
+      default: 'inactive',
+    },
+    expiresAt: {
+      type: Date,
+      default: null,
+    },
+  },
   createdAt: {
     type: Date,
     default: Date.now,

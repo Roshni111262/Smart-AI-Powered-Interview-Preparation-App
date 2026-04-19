@@ -89,3 +89,47 @@ Continue for all 5 questions. Make questions specific to ${role} and appropriate
     return generateFallbackQuestions(role, experience);
   }
 };
+
+exports.generateExplanation = async (question, role, experience) => {
+  const fallback = `This question is commonly asked for a ${role} (${experience} level). 
+
+Break it down into:
+- What the interviewer wants to test
+- Key concepts or steps you should mention
+- One or two concrete examples from your experience.
+
+Focus on giving a clear, structured answer instead of listing everything you know.`;
+
+  if (!question) {
+    return 'No question provided for explanation.';
+  }
+
+  if (!process.env.GEMINI_API_KEY) {
+    return fallback;
+  }
+
+  try {
+    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+    const prompt = `You are an expert interview coach.
+
+Explain the following interview question in a clear, step-by-step way for a candidate applying to a ${role} role with ${experience} experience.
+
+Question:
+"${question}"
+
+Your response should:
+- Briefly say what the interviewer is trying to assess
+- Break down the core concepts involved
+- Give a simple structure the candidate can use in their answer
+- Be concise (3-6 short paragraphs max).`;
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
+
+    return text && text.trim().length > 0 ? text.trim() : fallback;
+  } catch (error) {
+    console.error('Gemini explanation error:', error.message);
+    return fallback;
+  }
+};

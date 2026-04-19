@@ -3,21 +3,15 @@ const {
   createSession,
   getUserSessions,
   getSessionById,
-  togglePinQuestion,
-  explainQuestion,
-  getQuestionByIndex,
 } = require('../controllers/interviewController');
 const { protect } = require('../middleware/auth');
 
 const router = express.Router();
-
 router.use(protect);
 
 router.post('/', createSession);
 router.get('/', getUserSessions);
-router.patch('/pin', togglePinQuestion);
-router.post('/explain', explainQuestion);
-router.get('/:sessionId/questions/:questionIndex', getQuestionByIndex);
 router.get('/:id', getSessionById);
 
 module.exports = router;
+

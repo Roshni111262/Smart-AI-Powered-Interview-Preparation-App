@@ -17,25 +17,46 @@ export function AuthProvider({ children }) {
     setLoading(false);
   }, []);
 
+  const persistUser = (data) => {
+    const safeUser = {
+      _id: data._id,
+      name: data.name,
+      email: data.email,
+      role: data.role || 'user',
+      subscription: data.subscription || { plan: 'free', status: 'inactive' },
+    };
+    localStorage.setItem('user', JSON.stringify(safeUser));
+    setUser({ ...safeUser, token: data.token || localStorage.getItem('token') });
+  };
+
   const login = async (email, password) => {
     const { data } = await api.post('/auth/login', { email, password });
     localStorage.setItem('token', data.token);
-    localStorage.setItem('user', JSON.stringify({ _id: data._id, name: data.name, email: data.email }));
     api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
-    setUser(data);
+    persistUser(data);
     return data;
   };
 
   const register = async (name, email, password) => {
     const { data } = await api.post('/auth/register', { name, email, password });
     localStorage.setItem('token', data.token);
-    localStorage.setItem('user', JSON.stringify({ _id: data._id, name: data.name, email: data.email }));
     api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
-    setUser(data);
+    persistUser(data);
     return data;
   };
 
-  const logout = () => {
+  const refreshMe = async () => {
+    const { data } = await api.get('/auth/me');
+    persistUser({ ...data, token: localStorage.getItem('token') });
+    return data;
+  };
+
+  const logout = async () => {
+    try {
+      await api.post('/auth/logout');
+    } catch (e) {
+      // ignore logout API failures for client cleanup
+    }
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     delete api.defaults.headers.common['Authorization'];
@@ -43,7 +64,19 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, isAuthenticated: !!user?.token }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        login,
+        register,
+        logout,
+        refreshMe,
+        isAuthenticated: !!user?.token,
+        isAdmin: user?.role === 'admin',
+        isPremium: user?.subscription?.plan === 'premium' && user?.subscription?.status === 'active',
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

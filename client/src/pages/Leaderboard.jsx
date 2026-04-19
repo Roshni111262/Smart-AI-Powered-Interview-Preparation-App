@@ -52,6 +52,9 @@ export default function Leaderboard() {
                   <p className="text-sm text-slate-500 dark:text-slate-500">
                     {entry.sessionsCompleted} sessions • {entry.questionsPracticed} questions
                   </p>
+                  <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">
+                    {entry.pinnedCount || 0} pinned • {entry.discussionsContributed || 0} discussions • mock avg {Math.round(entry.averageMockScore || 0)}
+                  </p>
                 </div>
                 <div className="flex items-center gap-2">
                   <Award className="w-5 h-5 text-primary-500" />

@@ -10,9 +10,12 @@ import PeerDiscussion from './pages/PeerDiscussion';
 import ShareableLinks from './pages/ShareableLinks';
 import MockInterview from './pages/MockInterview';
 import SharedContent from './pages/SharedContent';
+import Pricing from './pages/Pricing';
+import TicketHistory from './pages/TicketHistory';
+import AdminDashboard from './pages/AdminDashboard';
 
-function PrivateRoute({ children }) {
-  const { isAuthenticated, loading } = useAuth();
+function PrivateRoute({ children, role, premiumOnly = false }) {
+  const { isAuthenticated, loading, user, isPremium } = useAuth();
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
@@ -20,7 +23,10 @@ function PrivateRoute({ children }) {
       </div>
     );
   }
-  return isAuthenticated ? children : <Navigate to="/login" replace />;
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (role && user?.role !== role) return <Navigate to="/" replace />;
+  if (premiumOnly && !isPremium && user?.role !== 'admin') return <Navigate to="/pricing" replace />;
+  return children;
 }
 
 function PublicRoute({ children }) {
@@ -41,7 +47,10 @@ export default function App() {
         <Route path="leaderboard" element={<Leaderboard />} />
         <Route path="discussions" element={<PeerDiscussion />} />
         <Route path="share" element={<ShareableLinks />} />
-        <Route path="mock-interview" element={<MockInterview />} />
+        <Route path="pricing" element={<Pricing />} />
+        <Route path="tickets" element={<TicketHistory />} />
+        <Route path="mock-interview" element={<PrivateRoute premiumOnly><MockInterview /></PrivateRoute>} />
+        <Route path="admin" element={<PrivateRoute role="admin"><AdminDashboard /></PrivateRoute>} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const questionAnswerSchema = new mongoose.Schema({
   question: { type: String, required: true },
   answer: { type: String, required: true },
+  explanation: { type: String, default: '' },
   isPinned: { type: Boolean, default: false },
 });
 
@@ -23,7 +24,7 @@ const interviewSessionSchema = new mongoose.Schema({
     trim: true,
   },
   generatedQuestions: [questionAnswerSchema],
-  pinnedQuestions: [{ type: Number }],
+  reviewCount: { type: Number, default: 0 },
   createdAt: {
     type: Date,
     default: Date.now,

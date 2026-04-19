@@ -57,3 +57,25 @@ exports.getSharedContent = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+exports.getSharedContentByQuestionId = async (req, res) => {
+  try {
+    const { sessionId, questionIndex } = req.params;
+    const qIndex = Number(questionIndex);
+    const session = await InterviewSession.findById(sessionId).lean();
+    if (!session) return res.status(404).json({ message: 'Session not found' });
+
+    const question = session.generatedQuestions[qIndex];
+    if (!question) return res.status(404).json({ message: 'Question not found' });
+
+    res.json({
+      type: 'question',
+      role: session.role,
+      experience: session.experience,
+      question,
+      source: { sessionId, questionIndex: qIndex },
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

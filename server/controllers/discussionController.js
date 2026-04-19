@@ -1,4 +1,5 @@
 const Discussion = require('../models/Discussion');
+const UserProgress = require('../models/UserProgress');
 
 exports.createDiscussion = async (req, res) => {
   try {
@@ -14,6 +15,17 @@ exports.createDiscussion = async (req, res) => {
       sessionRef: sessionRef || undefined,
       questionRef: questionRef || undefined,
     });
+
+    await UserProgress.findOneAndUpdate(
+      { user: req.user._id },
+      {
+        $inc: { discussionsContributed: 1 },
+        updatedAt: new Date(),
+        lastActiveAt: new Date(),
+      },
+      { upsert: true }
+    );
+
     res.status(201).json(discussion);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -44,6 +56,17 @@ exports.addReply = async (req, res) => {
       content: content.trim(),
     });
     await discussion.save();
+
+    await UserProgress.findOneAndUpdate(
+      { user: req.user._id },
+      {
+        $inc: { discussionsContributed: 1 },
+        updatedAt: new Date(),
+        lastActiveAt: new Date(),
+      },
+      { upsert: true }
+    );
+
     res.json(discussion);
   } catch (error) {
     res.status(500).json({ message: error.message });

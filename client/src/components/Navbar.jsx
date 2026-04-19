@@ -1,5 +1,5 @@
-import { Link, useNavigate } from 'react-router-dom';
-import { Menu, X, LogOut, Sun, Moon, LayoutDashboard, Trophy, MessageCircle, Share2, Mic } from 'lucide-react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { Menu, X, LogOut, Sun, Moon, LayoutDashboard, Trophy, MessageCircle, Share2, Mic, CreditCard, Ticket, Shield, Sparkles } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -10,85 +10,140 @@ const navLinks = [
   { to: '/discussions', label: 'Discussions', icon: MessageCircle },
   { to: '/share', label: 'Share', icon: Share2 },
   { to: '/mock-interview', label: 'Mock Interview', icon: Mic },
+  { to: '/pricing', label: 'Pricing', icon: CreditCard },
+  { to: '/tickets', label: 'Tickets', icon: Ticket },
 ];
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
-  const { user, logout } = useAuth();
+  const { user, logout, isAdmin } = useAuth();
   const { darkMode, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     navigate('/login');
   };
 
-  return (
-    <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-white/80 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-800">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          <Link to="/" className="flex items-center gap-2 font-bold text-lg text-primary-600 dark:text-primary-400">
-            <span className="hidden sm:inline">Smart Interview Prep</span>
-          </Link>
+  const fullLinks = isAdmin ? [...navLinks, { to: '/admin', label: 'Admin', icon: Shield }] : navLinks;
 
-          <div className="hidden md:flex items-center gap-1">
-            {navLinks.map(({ to, label, icon: Icon }) => (
-              <Link
-                key={to}
-                to={to}
-                className="px-4 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 transition-colors flex items-center gap-2"
-              >
-                <Icon className="w-4 h-4" />
-                {label}
-              </Link>
-            ))}
+  return (
+    <header className="fixed inset-x-0 top-0 z-50">
+      {/* Brand accent stripe — fixed height, consistent brand color */}
+      <div
+        className="h-1 w-full bg-gradient-to-r from-primary-600 via-primary-500 to-indigo-600 dark:from-primary-500 dark:via-primary-400 dark:to-indigo-500"
+        aria-hidden
+      />
+      <nav
+        className="border-b border-slate-200/80 bg-white/95 shadow-sm backdrop-blur-md dark:border-slate-800/80 dark:bg-slate-950/90"
+        role="navigation"
+        aria-label="Main"
+      >
+        <div className="mx-auto flex h-[4.5rem] max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
+          <NavLink
+            to="/"
+            className="group flex min-w-0 shrink-0 items-center gap-3 rounded-xl py-1 pr-2 outline-none ring-primary-500 focus-visible:ring-2"
+          >
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary-600 to-primary-700 text-white shadow-md ring-1 ring-primary-600/20 dark:from-primary-500 dark:to-primary-700 dark:ring-primary-400/20">
+              <Sparkles className="h-5 w-5" strokeWidth={2} />
+            </span>
+            <span className="hidden min-w-0 truncate text-[1.05rem] font-bold tracking-tight text-slate-900 dark:text-white sm:inline md:text-lg">
+              Smart Interview Prep
+            </span>
+          </NavLink>
+
+          {/* xl+: centered pill track — fixed link height via .nav-pill */}
+          <div className="hidden min-w-0 flex-1 justify-center px-2 xl:flex">
+            <div className="flex max-w-full items-center gap-1 rounded-2xl border border-slate-200/90 bg-slate-100/90 p-1.5 shadow-inner dark:border-slate-700/80 dark:bg-slate-900/60">
+              {fullLinks.map(({ to, label, icon: Icon }) => (
+                <NavLink
+                  key={to}
+                  to={to}
+                  title={label}
+                  className={({ isActive }) =>
+                    `nav-pill whitespace-nowrap ${isActive ? 'nav-pill-active' : 'nav-pill-idle'}`
+                  }
+                >
+                  <Icon aria-hidden />
+                  <span>{label}</span>
+                </NavLink>
+              ))}
+            </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          {/* md–lg: same pills, horizontal scroll (no hamburger) */}
+          <div className="hidden min-w-0 flex-1 items-center justify-center md:flex xl:hidden">
+            <div className="flex max-w-full items-center gap-1 overflow-x-auto rounded-2xl border border-slate-200/90 bg-slate-100/90 p-1.5 [-ms-overflow-style:none] [scrollbar-width:none] shadow-inner dark:border-slate-700/80 dark:bg-slate-900/60 [&::-webkit-scrollbar]:hidden">
+              <div className="flex w-max items-center gap-1">
+                {fullLinks.map(({ to, label, icon: Icon }) => (
+                  <NavLink
+                    key={to}
+                    to={to}
+                    title={label}
+                    className={({ isActive }) =>
+                      `nav-pill whitespace-nowrap ${isActive ? 'nav-pill-active' : 'nav-pill-idle'}`
+                    }
+                  >
+                    <Icon aria-hidden />
+                    <span>{label}</span>
+                  </NavLink>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+            <div className="hidden h-9 max-w-[11rem] items-center truncate rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 sm:flex">
+              <span className="truncate">{user?.name}</span>
+            </div>
             <button
+              type="button"
               onClick={toggleTheme}
-              className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="flex h-11 w-11 items-center justify-center rounded-xl border border-transparent text-slate-600 transition hover:border-slate-200 hover:bg-slate-100 dark:text-slate-300 dark:hover:border-slate-700 dark:hover:bg-slate-800"
               aria-label="Toggle theme"
             >
-              {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              {darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </button>
-            <span className="hidden sm:inline text-sm text-slate-600 dark:text-slate-400 truncate max-w-[120px]">
-              {user?.name}
-            </span>
             <button
+              type="button"
               onClick={handleLogout}
-              className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 transition-colors"
+              className="flex h-11 w-11 items-center justify-center rounded-xl border border-transparent text-red-600 transition hover:border-red-100 hover:bg-red-50 dark:text-red-400 dark:hover:border-red-900/40 dark:hover:bg-red-950/40"
               aria-label="Logout"
             >
-              <LogOut className="w-5 h-5" />
+              <LogOut className="h-5 w-5" />
             </button>
             <button
-              onClick={() => setOpen(!open)}
-              className="md:hidden p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+              type="button"
+              onClick={() => setOpen((o) => !o)}
+              className="flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800 md:hidden"
+              aria-expanded={open}
+              aria-label={open ? 'Close menu' : 'Open menu'}
             >
-              {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
           </div>
         </div>
 
         {open && (
-          <div className="md:hidden py-4 border-t border-slate-200 dark:border-slate-800 animate-fade-in">
-            <div className="flex flex-col gap-1">
-              {navLinks.map(({ to, label, icon: Icon }) => (
-                <Link
+          <div className="border-t border-slate-200 bg-white/98 dark:border-slate-800 dark:bg-slate-950/98 md:hidden animate-fade-in">
+            <div className="mx-auto max-w-7xl space-y-1 px-4 py-4 sm:px-6">
+              {fullLinks.map(({ to, label, icon: Icon }) => (
+                <NavLink
                   key={to}
                   to={to}
                   onClick={() => setOpen(false)}
-                  className="px-4 py-3 rounded-lg flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                  className={({ isActive }) =>
+                    `nav-pill w-full justify-start ${isActive ? 'nav-pill-active' : 'nav-pill-idle'}`
+                  }
                 >
-                  <Icon className="w-4 h-4" />
-                  {label}
-                </Link>
+                  <Icon aria-hidden />
+                  <span>{label}</span>
+                </NavLink>
               ))}
             </div>
           </div>
         )}
-      </div>
-    </nav>
+      </nav>
+    </header>
   );
 }
