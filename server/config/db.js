@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const dns = require('dns');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 
 let mongod = null;
@@ -18,25 +19,44 @@ const isPlaceholderUri = (uri) => {
   );
 };
 
+const createLocalMongoUri = async () => {
+  console.log('Using local in-memory MongoDB (no Atlas login needed). Data resets when server stops.');
+  mongod = await MongoMemoryServer.create({
+    binary: { version: '7.0.3' },
+  });
+  return mongod.getUri();
+};
+
 const connectDB = async () => {
+  let uri = process.env.MONGO_URI || process.env.MONGODB_URI;
+  const forceLocal = String(process.env.USE_LOCAL_MONGO || '').toLowerCase() === 'true';
+
+  if (uri && uri.startsWith('mongodb+srv://')) {
+    dns.setServers(['1.1.1.1', '8.8.8.8']);
+  }
+
+  if (forceLocal || isPlaceholderUri(uri)) {
+    uri = await createLocalMongoUri();
+  }
+
   try {
-    let uri = process.env.MONGO_URI || process.env.MONGODB_URI;
-    const forceLocal = String(process.env.USE_LOCAL_MONGO || '').toLowerCase() === 'true';
-
-    if (forceLocal || isPlaceholderUri(uri)) {
-      console.log('Using local in-memory MongoDB (no Atlas login needed). Data resets when server stops.');
-      mongod = await MongoMemoryServer.create({
-        binary: { version: '7.0.3' }
-      });
-      uri = mongod.getUri();
-    }
-
     const conn = await mongoose.connect(uri, {
       serverSelectionTimeoutMS: 15000,
     });
     console.log(`MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
     console.error(`MongoDB connection error: ${error.message}`);
+
+    if (!forceLocal && process.env.NODE_ENV !== 'production') {
+      console.warn('Falling back to local in-memory MongoDB for development due to Atlas connection failure.');
+      uri = await createLocalMongoUri();
+      const conn = await mongoose.connect(uri, {
+        serverSelectionTimeoutMS: 15000,
+      });
+      console.log(`MongoDB Connected: ${conn.connection.host}`);
+      return;
+    }
+
     process.exit(1);
   }
 };
