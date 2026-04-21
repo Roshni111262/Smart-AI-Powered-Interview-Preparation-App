@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Menu, X, LogOut, Sun, Moon, LayoutDashboard, Trophy, MessageCircle, Share2, Mic, CreditCard, Ticket, Shield, Sparkles } from 'lucide-react';
+import { Menu, X, LogOut, Sun, Moon, LayoutDashboard, Trophy, MessageCircle, Share2, Mic, CreditCard, Shield, Sparkles } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -11,7 +11,6 @@ const navLinks = [
   { to: '/share', label: 'Share', icon: Share2 },
   { to: '/mock-interview', label: 'Mock Interview', icon: Mic },
   { to: '/pricing', label: 'Pricing', icon: CreditCard },
-  { to: '/tickets', label: 'Tickets', icon: Ticket },
 ];
 
 export default function Navbar() {

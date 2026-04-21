@@ -1,8 +1,5 @@
 const Payment = require('../models/Payment');
-const Ticket = require('../models/Ticket');
 const User = require('../models/User');
-
-const randomTicket = () => `TKT-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
 
 exports.createPaymentIntent = async (req, res) => {
   try {
@@ -46,15 +43,6 @@ exports.confirmPayment = async (req, res) => {
         },
       });
     }
-
-    await Ticket.create({
-      user: req.user._id,
-      payment: payment._id,
-      ticketId: randomTicket(),
-      paymentStatus: payment.status === 'paid' ? 'paid' : 'failed',
-      featuresAccessed,
-      accessDate: new Date(),
-    });
 
     res.json(payment);
   } catch (error) {

@@ -27,35 +27,27 @@ export default function AdminDashboard() {
   const [overview, setOverview] = useState(null);
   const [users, setUsers] = useState([]);
   const [payments, setPayments] = useState([]);
-  const [tickets, setTickets] = useState([]);
   const [discussions, setDiscussions] = useState([]);
-  const [occupancy, setOccupancy] = useState([]);
 
   const navItems = [
     { id: 'admin-overview', label: 'Overview' },
     { id: 'admin-users', label: 'Users' },
     { id: 'admin-payments', label: 'Payments' },
     { id: 'admin-discussions', label: 'Discussions' },
-    { id: 'admin-tickets', label: 'Tickets' },
     { id: 'admin-leaderboard', label: 'Leaderboard' },
-    { id: 'admin-theater', label: 'Theater Analytics' },
   ];
 
   const fetchAll = async () => {
-    const [ov, us, ps, ts, ds, occ] = await Promise.all([
+    const [ov, us, ps, ds] = await Promise.all([
       api.get('/admin/overview'),
       api.get('/admin/users'),
       api.get('/admin/payments'),
-      api.get('/admin/tickets'),
       api.get('/admin/discussions'),
-      api.get('/theaters/occupancy/top'),
     ]);
     setOverview(ov.data);
     setUsers(us.data);
     setPayments(ps.data);
-    setTickets(ts.data);
     setDiscussions(ds.data);
-    setOccupancy(occ.data);
   };
 
   useEffect(() => {
@@ -108,39 +100,7 @@ export default function AdminDashboard() {
           </div>
         </section>
 
-        <div className="grid lg:grid-cols-2 gap-6">
-          <section id="admin-theater" className={`glass-card p-4 ${SECTION_SCROLL}`}>
-            <a href="#admin-theater" className="group block">
-              <h2 className="font-semibold text-slate-800 dark:text-white mb-3 group-hover:text-primary-600 dark:group-hover:text-primary-400">
-                Top Theater Occupancy (Paid seats only)
-              </h2>
-            </a>
-            <div className="space-y-3">
-              {occupancy.length === 0 ? (
-                <p className="text-sm text-slate-500 dark:text-slate-400">No theater data.</p>
-              ) : (
-                occupancy.map((item) => (
-                  <div key={item.theaterId}>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span>{item.theaterName}</span>
-                      <span>{item.occupancyPercent}%</span>
-                    </div>
-                    <div
-                      className="h-2 rounded bg-slate-200 dark:bg-slate-700"
-                      role="img"
-                      aria-label={`${item.theaterName} occupancy ${item.occupancyPercent} percent`}
-                    >
-                      <div
-                        className="h-2 rounded bg-primary-500"
-                        style={{ width: `${Math.min(item.occupancyPercent, 100)}%` }}
-                      />
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </section>
-
+        <div>
           <section id="admin-leaderboard" className={`glass-card p-4 ${SECTION_SCROLL}`}>
             <a href="#admin-leaderboard" className="group block">
               <h2 className="font-semibold text-slate-800 dark:text-white mb-3 group-hover:text-primary-600 dark:group-hover:text-primary-400">
@@ -278,52 +238,13 @@ export default function AdminDashboard() {
           )}
         </section>
 
-        <section id="admin-tickets" className={`glass-card p-4 overflow-x-auto ${SECTION_SCROLL}`}>
-          <a href="#admin-tickets" className="group inline-block mb-3">
-            <h2 className="font-semibold text-slate-800 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400">
-              Tickets ({tickets.length})
-            </h2>
-          </a>
-          {tickets.length === 0 ? (
-            <p className="text-sm text-slate-500 dark:text-slate-400">No tickets.</p>
-          ) : (
-            <table className="w-full text-sm">
-              <thead className="bg-slate-100 dark:bg-slate-800">
-                <tr>
-                  <th className="p-2 text-left">Ticket ID</th>
-                  <th className="p-2 text-left">User</th>
-                  <th className="p-2 text-left">Payment</th>
-                  <th className="p-2 text-left">Features</th>
-                </tr>
-              </thead>
-              <tbody>
-                {tickets.map((t) => (
-                  <tr key={t._id} className="border-t border-slate-200 dark:border-slate-700 hover:bg-slate-50/80 dark:hover:bg-slate-800/50">
-                    <td className="p-2 font-mono text-xs">{t.ticketId}</td>
-                    <td className="p-2">{t.user?.name || '—'}</td>
-                    <td className="p-2 capitalize">{t.paymentStatus}</td>
-                    <td className="p-2">{(t.featuresAccessed || []).join(', ') || '—'}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </section>
-
-        <div className="grid sm:grid-cols-3 gap-4">
+        <div className="grid sm:grid-cols-2 gap-4">
           <a
             href="#admin-payments"
             className="glass-card p-4 block transition hover:ring-2 hover:ring-primary-500/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
           >
             <h3 className="font-semibold mb-2 text-slate-800 dark:text-white">Payments</h3>
             <p className="text-sm text-slate-600 dark:text-slate-300">{payments.length} records — open section</p>
-          </a>
-          <a
-            href="#admin-tickets"
-            className="glass-card p-4 block transition hover:ring-2 hover:ring-primary-500/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-          >
-            <h3 className="font-semibold mb-2 text-slate-800 dark:text-white">Tickets</h3>
-            <p className="text-sm text-slate-600 dark:text-slate-300">{tickets.length} records — open section</p>
           </a>
           <a
             href="#admin-discussions"

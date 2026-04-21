@@ -11,7 +11,6 @@ import ShareableLinks from './pages/ShareableLinks';
 import MockInterview from './pages/MockInterview';
 import SharedContent from './pages/SharedContent';
 import Pricing from './pages/Pricing';
-import TicketHistory from './pages/TicketHistory';
 import AdminDashboard from './pages/AdminDashboard';
 
 function PrivateRoute({ children, role, premiumOnly = false }) {
@@ -48,7 +47,6 @@ export default function App() {
         <Route path="discussions" element={<PeerDiscussion />} />
         <Route path="share" element={<ShareableLinks />} />
         <Route path="pricing" element={<Pricing />} />
-        <Route path="tickets" element={<TicketHistory />} />
         <Route path="mock-interview" element={<PrivateRoute premiumOnly><MockInterview /></PrivateRoute>} />
         <Route path="admin" element={<PrivateRoute role="admin"><AdminDashboard /></PrivateRoute>} />
       </Route>

@@ -31,7 +31,7 @@ On Unix/Mac: `cp .env.example .env`
 
 Edit `server/.env`:
 
-- `MONGO_URI` - MongoDB Atlas connection string from [cloud.mongodb.com](https://cloud.mongodb.com)
+- `MONGO_URI` - MongoDB Atlas connection string 
 - `JWT_SECRET` - Any secure random string for JWT signing
 - `GEMINI_API_KEY` - API key from [Google AI Studio](https://makersuite.google.com/app/apikey)
 
@@ -123,17 +123,16 @@ See **HOW_TO_RUN_IN_VSCODE.md** for detailed steps.
 - **Role-Based Access:** `user` and `admin` roles with protected backend routes
 - **Subscription & Payments:** Payment intent + confirmation flow (Stripe/Khalti/esewa-ready abstraction)
 - **Premium Access Control:** Premium plan required for advanced modules (mock interview flow)
-- **Ticket Module:** User ticket history (last 6 months) with payment status and accessed features
-- **Admin Dashboard APIs:** User management, block/delete users, monitor payments/discussions/tickets
-- **Movie/Theater Admin Data:** Theater city hall movie details and top occupancy performer analytics
+- **Admin Dashboard APIs:** User management, block/delete users, monitor payments/discussions
+
 
 ## Environment Variables
 
 | Variable      | Description                    |
 |---------------|--------------------------------|
 | PORT          | Server port (default: 5000)    |
-| MONGO_URI     | MongoDB Atlas URI (optional if using local mode) |
-| USE_LOCAL_MONGO | `true` = in-memory DB, no Atlas login (good for college demo) |
+| MONGO_URI     | mongodb+srv://roshni:roshni123@cluster0.nwhm9eu.mongodb.net/smart-ai-interview-prep
+| USE_LOCAL_MONGO | 'false' 
 | JWT_SECRET    | Secret for JWT signing         |
 | GEMINI_API_KEY| Google Gemini API key          |
 | FRONTEND_URL  | Share URL base (default localhost:5173) |
@@ -163,45 +162,14 @@ See **HOW_TO_RUN_IN_VSCODE.md** for detailed steps.
 - `POST /api/payments/intent`
 - `POST /api/payments/confirm`
 - `GET /api/payments/me`
-- `GET /api/tickets/me`
-- `GET /api/theaters/city-hall-movies`
-- `GET /api/theaters/occupancy/top`
-- `POST /api/theaters/movies` (admin)
-- `POST /api/theaters/theaters` (admin)
 - `GET /api/admin/overview`
 - `GET /api/admin/users`
 - `PATCH /api/admin/users/:userId/block`
 - `DELETE /api/admin/users/:userId`
 - `GET /api/admin/payments`
 - `GET /api/admin/discussions`
-- `GET /api/admin/tickets`
 - `GET /api/leaderboard`
 - `POST /api/share`
 - `GET /api/share/:token`
 - `GET /api/share/id/:sessionId/:questionIndex`
 
-## Seed Demo Data (Viva Ready)
-
-From root:
-
-```bash
-npm run seed
-```
-
-Demo login from seed:
-
-- `demo@example.com`
-- `Password@123`
-
-Admin login from seed:
-
-- `admin@example.com`
-- `Password@123`
-
-## Notes
-
-- Without `GEMINI_API_KEY`, the app uses fallback questions.
-- Default `server/.env` uses `USE_LOCAL_MONGO=true` so the app runs without Atlas login (data clears when server stops).
-- For persistent Atlas: set real `MONGO_URI` and `USE_LOCAL_MONGO=false`.
-- CORS is enabled for `localhost:5173`.
-- Frontend proxies `/api` to backend in development.

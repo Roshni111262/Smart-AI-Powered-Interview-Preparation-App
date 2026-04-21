@@ -14,8 +14,6 @@ const sessionsRoutes = require('./routes/sessionsRoutes');
 const questionsRoutes = require('./routes/questionsRoutes');
 const explanationRoutes = require('./routes/explanationRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
-const ticketRoutes = require('./routes/ticketRoutes');
-const theaterRoutes = require('./routes/theaterRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const { ensureDefaultUsers } = require('./utils/bootstrapDefaults');
 
@@ -45,8 +43,6 @@ app.use('/api/progress', progressRoutes);
 app.use('/api/notes', noteRoutes);
 app.use('/api/mock', mockRoutes);
 app.use('/api/payments', paymentRoutes);
-app.use('/api/tickets', ticketRoutes);
-app.use('/api/theaters', theaterRoutes);
 app.use('/api/admin', adminRoutes);
 
 app.get('/api/health', (req, res) => {

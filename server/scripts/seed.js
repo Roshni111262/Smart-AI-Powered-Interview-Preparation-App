@@ -9,9 +9,6 @@ const Discussion = require('../models/Discussion');
 const UserProgress = require('../models/UserProgress');
 const MockInterview = require('../models/MockInterview');
 const Payment = require('../models/Payment');
-const Ticket = require('../models/Ticket');
-const Theater = require('../models/Theater');
-const Movie = require('../models/Movie');
 
 const DEMO_PASSWORD = 'Password@123';
 
@@ -47,9 +44,6 @@ const runSeed = async () => {
     UserProgress.deleteMany({}),
     MockInterview.deleteMany({}),
     Payment.deleteMany({}),
-    Ticket.deleteMany({}),
-    Theater.deleteMany({}),
-    Movie.deleteMany({}),
   ]);
 
   const hash = await bcrypt.hash(DEMO_PASSWORD, 12);
@@ -170,7 +164,7 @@ const runSeed = async () => {
     },
   ]);
 
-  const [payment1, payment2] = await Payment.insertMany([
+  await Payment.insertMany([
     {
       user: demoUser._id,
       gateway: 'khalti',
@@ -189,61 +183,6 @@ const runSeed = async () => {
       status: 'failed',
       subscriptionPlan: 'premium',
       providerTransactionId: 'STRP-DEMO-1002',
-    },
-  ]);
-
-  await Ticket.insertMany([
-    {
-      user: demoUser._id,
-      payment: payment1._id,
-      ticketId: `TKT-${Date.now()}-1001`,
-      paymentStatus: 'paid',
-      featuresAccessed: ['Mock Interview', 'Advanced Analytics', 'AI Deep Explanations'],
-    },
-    {
-      user: user2._id,
-      payment: payment2._id,
-      ticketId: `TKT-${Date.now()}-1002`,
-      paymentStatus: 'failed',
-      featuresAccessed: ['Subscription Checkout'],
-    },
-  ]);
-
-  const theaters = await Theater.insertMany([
-    {
-      name: 'Theater One',
-      cityHall: 'Kathmandu City Hall',
-      location: 'Kathmandu',
-      showtimes: [
-        { movieTitle: 'City Hall Movie', startsAt: new Date(), capacity: 120, paidSeats: 100 },
-        { movieTitle: 'AI Rising', startsAt: new Date(), capacity: 80, paidSeats: 65 },
-      ],
-    },
-    {
-      name: 'Theater Two',
-      cityHall: 'Pokhara City Hall',
-      location: 'Pokhara',
-      showtimes: [
-        { movieTitle: 'City Hall Movie', startsAt: new Date(), capacity: 100, paidSeats: 70 },
-      ],
-    },
-    {
-      name: 'Theater Three',
-      cityHall: 'Biratnagar City Hall',
-      location: 'Biratnagar',
-      showtimes: [
-        { movieTitle: 'City Hall Movie', startsAt: new Date(), capacity: 90, paidSeats: 86 },
-      ],
-    },
-  ]);
-
-  await Movie.insertMany([
-    {
-      title: 'City Hall Movie',
-      description: 'A feature film listed per theater city hall with showtime mapping.',
-      durationMinutes: 126,
-      genre: ['Drama', 'Action'],
-      theaterRefs: theaters.map((t) => t._id),
     },
   ]);
 

@@ -2,7 +2,7 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
-const parseGeminiResponse = (text) => {
+const parseGeminiResponse = exports.parseGeminiResponse = (text) => {
   const questions = [];
   const lines = text.split('\n').filter((line) => line.trim());
 
@@ -49,7 +49,7 @@ const parseGeminiResponse = (text) => {
   return questions;
 };
 
-const generateFallbackQuestions = (role, experience) => {
+const generateFallbackQuestions = exports.generateFallbackQuestions = (role, experience) => {
   return [
     { question: `What experience do you have with ${role}?`, answer: `As a ${experience} professional, focus on highlighting your relevant experience and key achievements.`, isPinned: false },
     { question: `Describe a challenging project in your ${role} career.`, answer: `Use the STAR method: Situation, Task, Action, Result. Be specific about your contributions.`, isPinned: false },

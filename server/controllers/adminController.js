@@ -3,21 +3,15 @@ const Payment = require('../models/Payment');
 const Discussion = require('../models/Discussion');
 const InterviewSession = require('../models/InterviewSession');
 const UserProgress = require('../models/UserProgress');
-const Ticket = require('../models/Ticket');
-const Theater = require('../models/Theater');
-const Movie = require('../models/Movie');
 
 exports.getDashboardOverview = async (req, res) => {
   try {
-    const [users, premiumUsers, sessions, paymentsPaid, discussions, tickets, theaters, movies] = await Promise.all([
+    const [users, premiumUsers, sessions, paymentsPaid, discussions] = await Promise.all([
       User.countDocuments(),
       User.countDocuments({ 'subscription.plan': 'premium', 'subscription.status': 'active' }),
       InterviewSession.countDocuments(),
       Payment.countDocuments({ status: 'paid' }),
       Discussion.countDocuments(),
-      Ticket.countDocuments({ paymentStatus: 'paid' }),
-      Theater.countDocuments(),
-      Movie.countDocuments(),
     ]);
 
     const revenueRows = await Payment.aggregate([
@@ -38,9 +32,6 @@ exports.getDashboardOverview = async (req, res) => {
         sessions,
         paidTransactions: paymentsPaid,
         discussions,
-        paidTickets: tickets,
-        theaters,
-        movies,
         totalRevenue: revenueRows[0]?.totalRevenue || 0,
       },
       leaderboard,
@@ -96,15 +87,6 @@ exports.getDiscussions = async (req, res) => {
   try {
     const discussions = await Discussion.find().sort({ createdAt: -1 }).lean();
     res.json(discussions);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-exports.getTickets = async (req, res) => {
-  try {
-    const tickets = await Ticket.find().populate('user', 'name email').sort({ createdAt: -1 }).lean();
-    res.json(tickets);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

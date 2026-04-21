@@ -24,7 +24,7 @@ export default function Pricing() {
         paymentId: payment._id,
         providerTransactionId: `${gateway.toUpperCase()}-${Date.now()}`,
         success: true,
-        featuresAccessed: ['Mock Interview', 'Advanced Analytics', 'Theater Module', 'Admin Insights'],
+        featuresAccessed: ['Mock Interview', 'Advanced Analytics', 'Admin Insights'],
       });
       await refreshMe();
       setMessage('Premium activated successfully. You now have access to advanced features.');

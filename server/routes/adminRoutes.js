@@ -7,7 +7,6 @@ const {
   deleteUser,
   getPayments,
   getDiscussions,
-  getTickets,
 } = require('../controllers/adminController');
 
 const router = express.Router();
@@ -19,6 +18,5 @@ router.patch('/users/:userId/block', blockUser);
 router.delete('/users/:userId', deleteUser);
 router.get('/payments', getPayments);
 router.get('/discussions', getDiscussions);
-router.get('/tickets', getTickets);
 
 module.exports = router;
